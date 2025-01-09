@@ -1,0 +1,59 @@
+from flask import Flask, request, jsonify
+import random
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Predefined responses for specific keywords with a fun twist
+responses = {
+    "hello": [
+        "Hello, Sweetie! Kya chal raha hai?",
+        "Hi hi! Kya baatein hain?",
+        "Oh hi! Badi yaad aa rahi thi!"
+    ],
+    "how are you": [
+        "Main toh mast hoon, tum batao?",
+        "Zindagi maze mein, tum kaisi ho?",
+        "Bas tumse baat kar ke aur bhi accha lag raha hai!"
+    ],
+    "bye": [
+        "Arre ja rahi ho? Jaldi wapas aana!",
+        "Bye bye! Apna dhyan rakhna!",
+        "Goodbye! Tumhari yaad aayegi!"
+    ],
+    "help": [
+        "Haan bolo, Sweetie! Main hoon na!",
+        "Sure! Kya madad chahiye?",
+        "Tumhare liye toh kuch bhi! Bolo?"
+    ]
+}
+
+def get_response(user_input):
+    # Check if user input matches any predefined response
+    user_input = user_input.lower()
+    for keyword, response_list in responses.items():
+        if keyword in user_input:
+            return random.choice(response_list)
+    return random.choice([
+        "Arre, ye thoda samajh nahi aaya. Dubara bolo!",
+        "Hmm... ispe sochna padega. Tum hi batao?",
+        "Wah wah! Tum toh poet lagti ho!"
+    ])
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    try:
+        # Get user input from the POST request
+        user_input = request.json.get("message")
+        if not user_input:
+            return jsonify({"error": "Message is required."}), 400
+
+        # Get a response based on the user input
+        reply = get_response(user_input)
+
+        return jsonify({"reply": reply}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
